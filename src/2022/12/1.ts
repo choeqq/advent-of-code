@@ -1,111 +1,94 @@
-const fs = require('fs');
-const assert = require('assert');
+import * as fs from 'fs';
 
-function bfs(
-	matrix: number[][],
-	end: [number, number],
-	...starts: [number, number][]
-): number {
-	const queue = starts.map((start) => ({ coord: start, cost: 0 }));
-	const seen = new Map<number, Set<number>>();
-	while (queue[0].coord[0] !== end[0] || queue[0].coord[1] !== end[1]) {
-		const {
-			coord: [x, y],
-			cost,
-		} = queue.shift()!;
+type Position = [number, number];
 
-		if (seen.get(x)?.has(y)) continue;
-		if (!seen.has(x)) seen.set(x, new Set());
-		seen.get(x)!.add(y);
+type Point = {
+	height: number;
+	isEnd: boolean;
+};
 
-		for (const neighbor of [
-			[x - 1, y],
-			[x + 1, y],
-			[x, y - 1],
-			[x, y + 1],
-		]) {
-			const [i, j] = neighbor;
-			if (
-				!(
-					i < 0 ||
-					i >= matrix.length ||
-					j < 0 ||
-					j >= matrix[0].length ||
-					matrix[i][j] > matrix[x][y] + 1
-				)
-			) {
-				queue.push({ coord: [i, j], cost: cost + 1 });
+const getHeightOfChar = (char: string): number => char.charCodeAt(0) - 97;
+
+const getNeighbours = (from: Position, map: Point[][]): Position[] => {
+	return [
+		from[0] > 0 ? [from[0] - 1, from[1]] : [-1, -1],
+		from[1] > 0 ? [from[0], from[1] - 1] : [-1, -1],
+		from[0] < map.length - 1 ? [from[0] + 1, from[1]] : [-1, -1], // Maybe bug
+		from[1] < map[0].length - 1 ? [from[0], from[1] + 1] : [-1, -1], // Maybe bug
+	].filter((a) => a[0] !== -1) as Position[];
+};
+
+const input = fs
+	.readFileSync('inputs/day12.txt', 'utf8')
+	.split('\n')
+	.filter((l) => l.length > 0)
+	.map((l) => l.split(''));
+
+const startPosx = input.findIndex((l) => l.includes('S'));
+const startPosy = input[startPosx].findIndex((l) => l === 'S');
+const start: Position = [startPosx, startPosy];
+
+const endPosx = input.findIndex((l) => l.includes('E'));
+const endPosy = input[endPosx].findIndex((l) => l === 'E');
+const end: Position = [endPosx, endPosy];
+
+const map = input.map((row) =>
+	row.map((point) => {
+		if (point === 'S')
+			return {
+				height: getHeightOfChar('a'),
+				isEnd: false,
+			} as Point;
+		else if (point === 'E')
+			return {
+				height: getHeightOfChar('z'),
+				isEnd: true,
+			} as Point;
+		return {
+			height: getHeightOfChar(point),
+			isEnd: false,
+		} as Point;
+	})
+);
+
+const dijkstra = (start: Position, end: Position, map: Point[][]): number => {
+	const visited: string[] = [];
+	const toVisit: Position[] = [start];
+	const lowestCost = {
+		[start.toString()]: 0,
+	};
+
+	let curr;
+	while ((curr = toVisit.shift())) {
+		if (visited.includes(curr.toString())) continue;
+		const currHeight = map[curr[0]][curr[1]].height;
+		const neighbours = getNeighbours(curr, map).filter(
+			(n: Position) => !visited.includes(n.toString())
+		);
+		const reachableNeighbours = neighbours.filter(
+			(neighbour) => map[neighbour[0]][neighbour[1]].height <= currHeight + 1
+		);
+
+		toVisit.push(...reachableNeighbours);
+
+		const costToCurr = lowestCost[curr.toString()];
+
+		reachableNeighbours.forEach((neighbour) => {
+			const newCostToNeighbour = costToCurr + 1;
+			const costToNeighbour =
+				lowestCost[neighbour.toString()] === undefined
+					? newCostToNeighbour
+					: lowestCost[neighbour.toString()];
+
+			if (newCostToNeighbour <= costToNeighbour) {
+				lowestCost[neighbour.toString()] = newCostToNeighbour;
 			}
-		}
+		});
+
+		visited.push(curr.toString());
 	}
 
-	return queue[0].cost;
-}
+	return lowestCost[end.toString()];
+};
 
-function parseElevations(data: string) {
-	const matrix = data
-		.split('\n')
-		.map((line) => line.split('').map((char) => char.charCodeAt(0) - 96));
-	let start: [number, number] | null = null;
-	let end: [number, number] | null = null;
-	for (let i = 0; i < matrix.length; i++) {
-		for (let j = 0; j < matrix[i].length; j++) {
-			if (matrix[i][j] === -13) start = [i, j];
-			if (matrix[i][j] === -27) end = [i, j];
-
-			if (end && start) break;
-		}
-		if (end && start) break;
-	}
-
-	matrix[start![0]][start![1]] = 1;
-	matrix[end![0]][end![1]] = 26;
-
-	return { matrix, start: start!, end: end! };
-}
-
-function solveOne(data: string): any {
-	const { matrix, start, end } = parseElevations(data);
-	return bfs(matrix, end, start);
-}
-
-(() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
-	assert.deepStrictEqual(
-		solveOne(`Sabqponm
-abcryxxl
-accszExk
-acctuvwj
-abdefghi`),
-		31
-	);
-	console.log(solveOne(data));
-})();
-
-function solveTwo(data: string): any {
-	const { matrix, end } = parseElevations(data);
-
-	const starts: [number, number][] = [];
-	for (let i = 0; i < matrix.length; i++) {
-		for (let j = 0; j < matrix[i].length; j++) {
-			if (matrix[i][j] === 1) {
-				starts.push([i, j]);
-			}
-		}
-	}
-
-	return bfs(matrix, end!, ...starts);
-}
-
-(() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
-	assert.deepStrictEqual(
-		solveTwo(`Sabqponm
-abcryxxl
-accszExk
-acctuvwj
-abdefghi`),
-		29
-	);
-	console.log(solveTwo(data));
-})();
+console.log(dijkstra(start, end, map));
