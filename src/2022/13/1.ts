@@ -1,37 +1,61 @@
-import { readFileSync } from 'node:fs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as fs from 'fs';
 
-const chunks = readFileSync('test.txt', 'utf-8').trim().split('\n\n');
+type Value = number | any[];
+type Result = 'good' | 'bad' | 'continue';
 
-const packets = chunks.map((chunk) =>
-	chunk.split('\n').map((l) => JSON.parse(l))
-);
+const sum = (a: number, b: number): number => a + b;
 
-const compare = (left: any, right: any): any => {
+const padArrayToLength = (arr: any[], len: number): any[] => [
+	...arr,
+	...Array(Math.max(len, arr.length) - arr.length).fill(-1),
+];
+
+const areInOrder = (left: Value, right: Value): Result => {
 	if (typeof left === 'number' && typeof right === 'number') {
-		if (left < right) return 1;
-		if (left > right) return -1;
-		return 0;
-	}
-	if (Array.isArray(left) && Array.isArray(right)) {
-		for (let i = 0; i < left.length; i++) {
-			if (!right[i]) return -1;
-			const result: any = compare(left[i], right[i]);
-			if (result) return result;
+		if (left < right) return 'good';
+		if (right < left) return 'bad';
+		return 'continue';
+	} else if (typeof left !== 'number' && typeof right !== 'number') {
+		const maxLength = Math.max(left.length, right.length);
+		const lArr = padArrayToLength(left, maxLength);
+		const rArr = padArrayToLength(right, maxLength);
+		const answer = lArr.map(
+			(val: Value, i: number): Result => areInOrder(val, rArr[i])
+		);
+		const firstBad = answer.findIndex((ans) => ans === 'bad');
+		const firstGood = answer.findIndex((ans) => ans === 'good');
+		if (firstBad != -1 && firstGood != -1) {
+			if (firstBad < firstGood) return 'bad';
+			else return 'good';
 		}
-		if (left.length < right.length) return 1;
-		else return 0;
+		if (firstBad != -1) return 'bad';
+		if (firstGood != -1) return 'good';
+		return 'continue';
+	} else {
+		if (typeof left === 'number') {
+			if (left === -1) return 'good';
+			return areInOrder([left], right);
+		} else {
+			if (right === -1) return 'bad';
+			return areInOrder(left, [right]);
+		}
 	}
-	if (typeof left === 'number') return compare([left], right);
-	if (typeof right === 'number') return compare(left, [right]);
 };
 
-let sum = 0;
+const input = fs
+	.readFileSync('inputs/day13.txt', 'utf8')
+	.split('\n\n')
+	.map((a) => a.trim());
 
-for (const packet of packets) {
-	const left = packet[0];
-	const right = packet[1];
-	const result = compare(left, right);
-	if (result === 1) sum += packets.findIndex((p) => p === packet) + 1;
-}
+const packets = input.map((line) =>
+	line.split('\n').map((pack) => JSON.parse(pack))
+);
 
-console.log(sum);
+const orderStatus = packets.map((packet) => areInOrder(packet[0], packet[1]));
+
+const answer = orderStatus
+	.map((status, idx) => (status === 'good' ? idx + 1 : 0))
+	.reduce(sum);
+
+console.log(answer);
