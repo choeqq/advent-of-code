@@ -1,168 +1,67 @@
 import * as fs from 'fs';
-import { cloneDeep } from 'lodash';
+import { Shape, shapes } from './shapes';
 
-const input = fs
-	.readFileSync(__dirname + '/day17.input.txt', 'utf8')
-	.replace(/\r/g, '');
+type Position = [number, number];
 
-enum Tile {
-	Empty,
-	Wall,
-	Rock,
-}
-
-type Vec = {
-	x: number;
-	y: number;
-};
-
-type Row = Tile[];
-
-type State = {
-	rows: Row[];
-	rockShape: number;
-	rockPosition: Vec | null;
-};
-
-const shapes = [
-	['0:0', '1:0', '2:0', '3:0'], // _
-	['0:1', '1:0', '1:1', '1:2', '2:1'], // +
-	['0:0', '1:0', '2:0', '2:1', '2:2'], // ⅃
-	['0:0', '0:1', '0:2', '0:3'], // |
-	['0:0', '1:0', '0:1', '1:1'], // ■
-];
-
-export function getEmptyRowsCount(rows: Row[]): number {
-	let count = 0;
-	while (
-		rows.at(-1 - count) &&
-		rows
-			.at(-1 - count)!
-			.slice(1, -1)
-			.every((tile) => tile === Tile.Empty)
-	) {
-		count += 1;
-	}
-	return count;
-}
-
-export function isColliding(
-	rows: Row[],
-	position: Vec,
-	shape: number
-): boolean {
-	const pixels = shapes[shape];
-	for (let pixel of pixels) {
-		const [pixelX, pixelY] = pixel.split(':').map(Number);
-
-		const x = position.x + pixelX;
-		const y = position.y + pixelY;
-
-		if (rows[y][x] !== Tile.Empty) {
-			return true;
+const validPos = (
+	pos: Position,
+	shape: Shape,
+	map: Map<string, boolean>
+): boolean => {
+	if (pos[1] < 0) return false;
+	if (pos[0] < 0 || pos[0] + shape.width > 7) return false;
+	for (let i = 0; i < shape.form.length; i++) {
+		for (let j = 0; j < shape.form[0].length; j++) {
+			if (shape.form[i][j] === '#') {
+				if (map.has([pos[0] + j, pos[1] + i].toString())) return false;
+			}
 		}
 	}
-	return false;
-}
+	return true;
+};
 
-export function simulate(
-	windPattern: string,
-	rocksCount: number = 2022,
-	caveWidth: number = 7
-): State {
-	const initialState: State = {
-		rows: [Array(caveWidth + 2).fill(Tile.Wall)],
-		rockShape: 0,
-		rockPosition: null,
-	};
-	let state = initialState;
-	let windOffset = 0;
-	let landedRocks = 0;
+const wind = fs.readFileSync('inputs/day17.txt', 'utf8').trim().split('');
+const map = new Map<string, boolean>();
 
-	while (landedRocks < rocksCount) {
-		// if there is no rock throw next one
-		if (state.rockPosition === null) {
-			// check for available space
-			// 7 = 3 + 4; 3 as required, 4 for the rock
-			const emptyRowsNeeded = 7 - getEmptyRowsCount(state.rows);
-
-			for (let i = 0; i < emptyRowsNeeded; i++) {
-				state.rows.push([
-					Tile.Wall,
-					...Array(caveWidth).fill(Tile.Empty),
-					Tile.Wall,
-				]);
+let top = 0;
+let droppedRocks = 0;
+let rockIdx = 0;
+let windIdx = 0;
+while (droppedRocks < 2022) {
+	const currRock = shapes[rockIdx % shapes.length];
+	rockIdx++;
+	let currPos: Position = [2, top + 3];
+	let stopped = false;
+	while (!stopped) {
+		const move = wind[windIdx % wind.length];
+		windIdx++;
+		if (move === '>') {
+			if (validPos([currPos[0] + 1, currPos[1]], currRock, map)) {
+				// can go right
+				currPos = [currPos[0] + 1, currPos[1]];
 			}
-			state.rockPosition = {
-				x: 3,
-				y: state.rows.length - 4,
-			};
-		}
-
-		// apply wind
-		const wind = windPattern[windOffset];
-
-		const afterWindPosition: Vec = {
-			x: state.rockPosition.x + (wind === '>' ? 1 : -1),
-			y: state.rockPosition.y,
-		};
-		if (!isColliding(state.rows, afterWindPosition, state.rockShape)) {
-			state.rockPosition = afterWindPosition;
-		}
-		windOffset = (windOffset + 1) % windPattern.length;
-
-		// apply gravitation
-		const afterFallPosition: Vec = {
-			x: state.rockPosition.x,
-			y: state.rockPosition.y - 1,
-		};
-		if (isColliding(state.rows, afterFallPosition, state.rockShape)) {
-			// land the rock
-			const pixels = shapes[state.rockShape];
-			for (let pixel of pixels) {
-				const [pixelX, pixelY] = pixel.split(':').map(Number);
-				const x = state.rockPosition.x + pixelX;
-				const y = state.rockPosition.y + pixelY;
-				state.rows[y][x] = Tile.Rock;
-			}
-			state.rockPosition = null;
-			state.rockShape = (state.rockShape + 1) % shapes.length;
-			landedRocks += 1;
 		} else {
-			// fall deeper
-			state.rockPosition = afterFallPosition;
+			if (validPos([currPos[0] - 1, currPos[1]], currRock, map)) {
+				// can go left
+				currPos = [currPos[0] - 1, currPos[1]];
+			}
+		}
+		if (validPos([currPos[0], currPos[1] - 1], currRock, map)) {
+			// can go down
+			currPos = [currPos[0], currPos[1] - 1];
+		} else {
+			// touched down
+			stopped = true;
+			top = Math.max(top, currRock.height + currPos[1]);
+			for (let i = 0; i < currRock.form.length; i++) {
+				for (let j = 0; j < currRock.form[0].length; j++) {
+					if (currRock.form[i][j] === '#')
+						map.set([currPos[0] + j, currPos[1] + i].toString(), true);
+				}
+			}
 		}
 	}
-	return state;
+	droppedRocks++;
 }
 
-export function printMap(state: State): void {
-	const map: Row[] = cloneDeep(state.rows);
-	if (state.rockPosition) {
-		const pixels = shapes[state.rockShape];
-		for (let pixelStr of pixels) {
-			const [pixelX, pixelY] = pixelStr.split(':').map(Number);
-			const x = state.rockPosition.x + pixelX;
-			const y = state.rockPosition.y + pixelY;
-			map[y][x] = 3;
-		}
-	}
-	console.log(
-		map
-			// .slice(-20)
-			.reverse()
-			.map((row) => row.join(''))
-			.join('\n')
-			.replace(/0/g, '⬛')
-			.replace(/1/g, '🟦')
-			.replace(/2/g, '🟨')
-			.replace(/3/g, '🟧')
-	);
-}
-
-export function getTowerHeight(windPattern: string) {
-	const finalState = simulate(windPattern);
-	return finalState.rows.length - getEmptyRowsCount(finalState.rows) - 1;
-}
-
-console.log(getTowerHeight(input));
+console.log(top);
