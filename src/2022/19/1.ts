@@ -1,221 +1,277 @@
-const fs = require('fs');
-const assert = require('assert');
+import * as fs from 'fs';
 
-type Resource = 'ore' | 'clay' | 'obsidian' | 'geode';
-type BotRequirements = Record<Resource, number>;
+type Blueprint = {
+	id: number;
+	oreRobotCost: RobotCost;
+	clayRobotCost: RobotCost;
+	obsidianRobotCost: RobotCost;
+	geodeRobotCost: RobotCost;
+};
 
-const parseBlueprints = (data: string) =>
-	data
-		.toLowerCase()
-		.split('\n')
-		.map((line) =>
-			line
-				.split('each ')
-				.slice(1)
-				.reduce((bots, text) => {
-					const [robot, requirements] = text
-						.split('.')[0]
-						.split(' robot costs ');
-					bots[robot as Resource] = requirements
-						.split(' and ')
-						.reduce((requirements, text) => {
-							const [count, resource] = text.split(' ');
-							requirements[resource as Resource] = parseInt(count);
-							return requirements;
-						}, {} as BotRequirements);
-					return bots;
-				}, {} as Record<Resource, BotRequirements>)
+type RobotCost = {
+	ore: number;
+	clay: number;
+	obsidian: number;
+};
+
+type RobotsCount = {
+	ore: number;
+	clay: number;
+	obsidian: number;
+};
+
+type MaterialsCount = {
+	ores: number;
+	clays: number;
+	obsidians: number;
+	geodes: number;
+};
+
+const sum = (a: number, b: number): number => a + b;
+
+const getMaxGeodes = (
+	time: number,
+	robots: RobotsCount,
+	materials: MaterialsCount,
+	currMaxGeodes: number,
+	blueprint: Blueprint
+): number => {
+	if (time <= 0) return currMaxGeodes;
+
+	currMaxGeodes = Math.max(materials.geodes, currMaxGeodes);
+
+	const maxOreNeeded = Math.max(
+		blueprint.oreRobotCost.ore,
+		blueprint.clayRobotCost.ore,
+		blueprint.obsidianRobotCost.ore,
+		blueprint.geodeRobotCost.ore
+	);
+
+	if (robots.obsidian > 0) {
+		const enoughOre = blueprint.geodeRobotCost.ore <= materials.ores;
+		const enoughObsidian =
+			blueprint.geodeRobotCost.obsidian <= materials.obsidians;
+		const canBuildGeodeRobot = enoughOre && enoughObsidian;
+
+		const timeUntilEnoughOre = Math.ceil(
+			(blueprint.geodeRobotCost.ore - materials.ores) / robots.ore
+		);
+		const timeUntilEnoughObsidian = Math.ceil(
+			(blueprint.geodeRobotCost.obsidian - materials.obsidians) /
+				robots.obsidian
+		);
+		const timeUntilEnoughResources = Math.max(
+			timeUntilEnoughOre,
+			timeUntilEnoughObsidian
 		);
 
-function bfs(
-	oreBotReq: BotRequirements,
-	clayBotReq: BotRequirements,
-	obsidianBotReq: BotRequirements,
-	geodeBotReq: BotRequirements,
-	minutesLeft: number
-) {
-	let best = -Infinity;
-	const seen = new Set();
+		const totalTime = 1 + (canBuildGeodeRobot ? 0 : timeUntilEnoughResources);
 
-	const stack = [[0, 0, 0, 0, 1, 0, 0, 0, minutesLeft]];
-	while (stack.length) {
-		const next = stack.pop()!;
-		let [
-			ore,
-			clay,
-			obsidian,
-			geode,
-			oreRobots,
-			clayRobots,
-			obsidianRobots,
-			geodeRobots,
-			minutesLeft,
-		] = next;
+		const newMaterials = {
+			...materials,
+			ores:
+				materials.ores + totalTime * robots.ore - blueprint.geodeRobotCost.ore,
+			clays: materials.clays + totalTime * robots.clay,
+			obsidians:
+				materials.obsidians +
+				totalTime * robots.obsidian -
+				blueprint.geodeRobotCost.obsidian,
+			geodes: materials.geodes + time - totalTime,
+		};
 
-		best = Math.max(best, geode);
-		if (minutesLeft === 0) continue;
-
-		const maxOreCost = Math.max(
-			oreBotReq.ore,
-			clayBotReq.ore,
-			obsidianBotReq.ore,
-			geodeBotReq.ore
+		currMaxGeodes = Math.max(
+			getMaxGeodes(
+				time - totalTime,
+				robots,
+				newMaterials,
+				currMaxGeodes,
+				blueprint
+			),
+			currMaxGeodes
 		);
 
-		oreRobots = Math.min(oreRobots, maxOreCost);
-		ore = Math.min(
-			ore,
-			minutesLeft * maxOreCost - oreRobots * (minutesLeft - 1)
+		if (canBuildGeodeRobot) return currMaxGeodes;
+	}
+
+	if (robots.clay > 0) {
+		const enoughOre = blueprint.obsidianRobotCost.ore <= materials.ores;
+		const enoughClay = blueprint.obsidianRobotCost.clay <= materials.clays;
+		const canBuildObsidianRobot = enoughOre && enoughClay;
+
+		const timeUntilEnoughOre = Math.ceil(
+			(blueprint.obsidianRobotCost.ore - materials.ores) / robots.ore
+		);
+		const timeUntilEnoughClay = Math.ceil(
+			(blueprint.obsidianRobotCost.clay - materials.clays) / robots.clay
+		);
+		const timeUntilEnoughResources = Math.max(
+			timeUntilEnoughOre,
+			timeUntilEnoughClay
 		);
 
-		clayRobots = Math.min(clayRobots, obsidianBotReq.clay);
-		clay = Math.min(
-			clay,
-			minutesLeft * obsidianBotReq.clay - clayRobots * (minutesLeft - 1)
-		);
+		const totalTime =
+			1 + (canBuildObsidianRobot ? 0 : timeUntilEnoughResources);
 
-		geodeRobots = Math.min(geodeRobots, geodeBotReq.obsidian);
-		obsidian = Math.min(
-			obsidian,
-			minutesLeft * geodeBotReq.obsidian - geodeRobots * (minutesLeft - 1)
-		);
+		if (time - totalTime > 2) {
+			const newRobots = {
+				...robots,
+				obsidian: robots.obsidian + 1,
+			};
 
-		const key = [
-			ore,
-			clay,
-			obsidian,
-			geode,
-			oreRobots,
-			clayRobots,
-			obsidianRobots,
-			geodeRobots,
-			minutesLeft,
-		].join(',');
-		if (seen.has(key)) continue;
-		seen.add(key);
-		const newMinutes = minutesLeft - 1;
-		const [newOre, newClay, newObsidian, newGeode] = [
-			ore + oreRobots,
-			clay + clayRobots,
-			obsidian + obsidianRobots,
-			geode + geodeRobots,
-		];
-		stack.push([
-			newOre,
-			newClay,
-			newObsidian,
-			newGeode,
-			oreRobots,
-			clayRobots,
-			obsidianRobots,
-			geodeRobots,
-			newMinutes,
-		]);
-		if (ore >= geodeBotReq.ore && obsidian >= geodeBotReq.obsidian) {
-			stack.push([
-				newOre - geodeBotReq.ore,
-				newClay,
-				newObsidian - geodeBotReq.obsidian,
-				newGeode,
-				oreRobots,
-				clayRobots,
-				obsidianRobots,
-				geodeRobots + 1,
-				newMinutes,
-			]);
-		} else if (ore >= obsidianBotReq.ore && clay >= obsidianBotReq.clay) {
-			stack.push([
-				newOre - obsidianBotReq.ore,
-				newClay - obsidianBotReq.clay,
-				newObsidian,
-				newGeode,
-				oreRobots,
-				clayRobots,
-				obsidianRobots + 1,
-				geodeRobots,
-				newMinutes,
-			]);
-		} else {
-			if (ore >= clayBotReq.ore) {
-				stack.push([
-					newOre - clayBotReq.ore,
-					newClay,
-					newObsidian,
-					newGeode,
-					oreRobots,
-					clayRobots + 1,
-					obsidianRobots,
-					geodeRobots,
-					newMinutes,
-				]);
-			}
-			if (ore >= oreBotReq.ore) {
-				stack.push([
-					newOre - oreBotReq.ore,
-					newClay,
-					newObsidian,
-					newGeode,
-					oreRobots + 1,
-					clayRobots,
-					obsidianRobots,
-					geodeRobots,
-					newMinutes,
-				]);
-			}
+			const newMaterials = {
+				...materials,
+				ores:
+					materials.ores +
+					totalTime * robots.ore -
+					blueprint.obsidianRobotCost.ore,
+				clays:
+					materials.clays +
+					totalTime * robots.clay -
+					blueprint.obsidianRobotCost.clay,
+				obsidians: materials.obsidians + totalTime * robots.obsidian,
+			};
+
+			currMaxGeodes = Math.max(
+				getMaxGeodes(
+					time - totalTime,
+					newRobots,
+					newMaterials,
+					currMaxGeodes,
+					blueprint
+				)
+			);
 		}
 	}
-	return best;
-}
 
-function solveOne(data: string): any {
-	return parseBlueprints(data).reduce(
-		(sum, blueprint, i) =>
-			sum +
-			bfs(
-				blueprint.ore,
-				blueprint.clay,
-				blueprint.obsidian,
-				blueprint.geode,
-				24
-			) *
-				(i + 1),
-		0
-	);
-}
+	if (robots.clay < blueprint.obsidianRobotCost.clay) {
+		const canBuildClayRobot = blueprint.clayRobotCost.ore <= materials.ores;
 
-(() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
-	assert.deepStrictEqual(
-		solveOne(`Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
-Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.`),
-		33
-	);
-	console.log(solveOne(data));
-})();
-
-function solveTwo(data: string): any {
-	return parseBlueprints(data)
-		.slice(0, 3)
-		.reduce(
-			(product, blueprint) =>
-				product *
-				bfs(
-					blueprint.ore,
-					blueprint.clay,
-					blueprint.obsidian,
-					blueprint.geode,
-					32
-				),
-			1
+		const timeUntilEnoughOre = Math.ceil(
+			(blueprint.clayRobotCost.ore - materials.ores) / robots.ore
 		);
-}
 
-(() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
-	assert.deepStrictEqual(
-		solveTwo(`Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
-	Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.`),
-		3162
-	);
-	console.log(solveTwo(data));
-})();
+		const totalTime = 1 + (canBuildClayRobot ? 0 : timeUntilEnoughOre);
+
+		if (time - totalTime > 3) {
+			const newRobots = {
+				...robots,
+				clay: robots.clay + 1,
+			};
+
+			const newMaterials = {
+				...materials,
+				ores:
+					materials.ores + totalTime * robots.ore - blueprint.clayRobotCost.ore,
+				clays: materials.clays + totalTime * robots.clay,
+				obsidians: materials.obsidians + totalTime * robots.obsidian,
+			};
+
+			currMaxGeodes = Math.max(
+				getMaxGeodes(
+					time - totalTime,
+					newRobots,
+					newMaterials,
+					currMaxGeodes,
+					blueprint
+				)
+			);
+		}
+	}
+
+	if (robots.ore < maxOreNeeded) {
+		const canBuildOreRobot = blueprint.oreRobotCost.ore <= materials.ores;
+
+		const timeUntilEnoughOre = Math.ceil(
+			(blueprint.oreRobotCost.ore - materials.ores) / robots.ore
+		);
+
+		const totalTime = 1 + (canBuildOreRobot ? 0 : timeUntilEnoughOre);
+
+		if (time - totalTime > 4) {
+			const newRobots = {
+				...robots,
+				ore: robots.ore + 1,
+			};
+
+			const newMaterials = {
+				...materials,
+				ores:
+					materials.ores + totalTime * robots.ore - blueprint.oreRobotCost.ore,
+				clays: materials.clays + totalTime * robots.clay,
+				obsidians: materials.obsidians + totalTime * robots.obsidian,
+			};
+
+			currMaxGeodes = Math.max(
+				getMaxGeodes(
+					time - totalTime,
+					newRobots,
+					newMaterials,
+					currMaxGeodes,
+					blueprint
+				)
+			);
+		}
+	}
+
+	return currMaxGeodes;
+};
+
+const input = fs
+	.readFileSync('inputs/day19.txt', 'utf8')
+	.split('\n')
+	.filter((l) => l.length > 0);
+
+const blueprints: Blueprint[] = input.map((line) => {
+	const regex = /\d+/g;
+	const id = Number(regex.exec(line));
+	const oreRobotCost = {
+		ore: Number(regex.exec(line)),
+		clay: 0,
+		obsidian: 0,
+	} as RobotCost;
+	const clayRobotCost = {
+		ore: Number(regex.exec(line)),
+		clay: 0,
+		obsidian: 0,
+	} as RobotCost;
+	const obsidianRobotCost = {
+		ore: Number(regex.exec(line)),
+		clay: Number(regex.exec(line)),
+		obsidian: 0,
+	} as RobotCost;
+	const geodeRobotCost = {
+		ore: Number(regex.exec(line)),
+		clay: 0,
+		obsidian: Number(regex.exec(line)),
+	} as RobotCost;
+	return {
+		id,
+		oreRobotCost,
+		clayRobotCost,
+		obsidianRobotCost,
+		geodeRobotCost,
+	} as Blueprint;
+});
+
+const initialRobots: RobotsCount = {
+	ore: 1,
+	clay: 0,
+	obsidian: 0,
+};
+
+const initialMaterials: MaterialsCount = {
+	ores: 0,
+	clays: 0,
+	obsidians: 0,
+	geodes: 0,
+};
+
+const qualities = blueprints.map(
+	(blueprint) =>
+		getMaxGeodes(24, initialRobots, initialMaterials, 0, blueprint) *
+		blueprint.id
+);
+
+const answer = qualities.reduce(sum);
+
+console.log(answer);
