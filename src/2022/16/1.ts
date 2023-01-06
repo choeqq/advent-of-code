@@ -72,7 +72,7 @@ function solveOne(data: string): any {
 }
 
 (() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
+	const data = fs.readFileSync(__dirname + 'input.txt', 'utf8').toString();
 	assert.deepStrictEqual(
 		solveOne(`Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
@@ -94,7 +94,7 @@ function solveTwo(data: string): any {
 }
 
 (() => {
-	const data = fs.readFileSync(__dirname + '/input.in').toString();
+	const data = fs.readFileSync(__dirname + 'input.txt', 'utf8').toString();
 	assert.deepStrictEqual(
 		solveTwo(`Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA

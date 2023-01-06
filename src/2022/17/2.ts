@@ -88,7 +88,7 @@ const simulateDrops = (
 	};
 };
 
-const wind = fs.readFileSync('inputs/day17.txt', 'utf8').trim().split('');
+const wind = fs.readFileSync('input.txt', 'utf8').trim().split('');
 
 const rocksToDropToFindLoop = 10000;
 const firstRun = simulateDrops(wind, rocksToDropToFindLoop);

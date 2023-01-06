@@ -44,7 +44,7 @@ const areInOrder = (left: Value, right: Value): Result => {
 };
 
 const input = fs
-	.readFileSync('inputs/day13.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n\n')
 	.map((a) => a.trim());
 

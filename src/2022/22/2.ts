@@ -254,7 +254,7 @@ const getNextPlayer = (
 };
 
 const input = fs
-	.readFileSync('inputs/day22.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length !== 0);
 

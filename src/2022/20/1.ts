@@ -33,7 +33,7 @@ const getNthValue = (start: Node, offset: number): number => {
 };
 
 const input = fs
-	.readFileSync('inputs/day20.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length > 0)
 	.map(Number);

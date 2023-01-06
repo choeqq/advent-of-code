@@ -20,7 +20,7 @@ const validPos = (
 	return true;
 };
 
-const wind = fs.readFileSync('inputs/day17.txt', 'utf8').trim().split('');
+const wind = fs.readFileSync('input.txt', 'utf8').trim().split('');
 const map = new Map<string, boolean>();
 
 let top = 0;

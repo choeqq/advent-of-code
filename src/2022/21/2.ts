@@ -102,7 +102,7 @@ const getHumanValue = (
 };
 
 const input = fs
-	.readFileSync('inputs/day21.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length > 0);
 

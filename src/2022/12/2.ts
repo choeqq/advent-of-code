@@ -23,7 +23,7 @@ const getNeighbours = (from: Position, map: Point[][]): Position[] => {
 };
 
 const input = fs
-	.readFileSync('inputs/day12.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length > 0)
 	.map((l) => l.split(''));

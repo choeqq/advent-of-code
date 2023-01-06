@@ -46,7 +46,7 @@ const getWaterCubes = (
 };
 
 const cubes = fs
-	.readFileSync('inputs/day18.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length > 0)
 	.map((l) => l.split(',').map(Number));

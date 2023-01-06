@@ -17,7 +17,7 @@ const calculateDistance = (from: Position, to: Position): number => {
 const sum = (a: number, b: number): number => a + b;
 
 const sensors: Sensor[] = fs
-	.readFileSync('inputs/day15.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((line) => line.length > 0)
 	.map((line) => {

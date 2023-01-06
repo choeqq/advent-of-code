@@ -16,7 +16,7 @@ const nextPos = (curr: Position, occupied: Set<string>): Position | 'stop' => {
 };
 
 const input = fs
-	.readFileSync('inputs/day14.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((l) => l.length > 0);
 

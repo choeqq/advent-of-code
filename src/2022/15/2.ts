@@ -125,7 +125,7 @@ const dijkstra = (
 };
 
 const input: Room[] = fs
-	.readFileSync('inputs/day16.txt', 'utf8')
+	.readFileSync('input.txt', 'utf8')
 	.split('\n')
 	.filter((line) => line.length > 0)
 	.map((l) => {
