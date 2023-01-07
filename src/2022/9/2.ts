@@ -6,7 +6,7 @@ const inputArray = input.split('\n');
 const snake = Array(10).fill('0#0');
 const tailPos: string[] = [];
 
-const moveSnake = (pos1, pos2, i, cmd) => {
+const moveSnake = (pos1: string, pos2: string, i: number, cmd: string) => {
 	let [s1x, s1y] = pos1.split('#').map((x) => +x);
 	let [s2x, s2y] = pos2.split('#').map((x) => +x);
 
