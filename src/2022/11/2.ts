@@ -45,7 +45,7 @@ inputArray.forEach((monkey) => {
 
 const lcm = monkeys.reduce((val, monkey) => val * monkey.test, 1);
 
-const operate = (worryLevel: BigNumber, operation): BigNumber => {
+const operate = (worryLevel: BigNumber, operation: string): BigNumber => {
 	const [, op, by] = operation.split(' ');
 
 	switch (op) {

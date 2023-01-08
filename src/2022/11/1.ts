@@ -36,7 +36,7 @@ inputArray.forEach((monkey) => {
 	});
 });
 
-const operate = (worryLevel: number, operation): number => {
+const operate = (worryLevel: number, operation: string): number => {
 	const [, op, by] = operation.split(' ');
 
 	switch (op) {
