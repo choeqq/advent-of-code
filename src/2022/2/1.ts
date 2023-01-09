@@ -1,64 +1,65 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
-const input = fs.readFileSync('input.txt', 'utf8');
-const inputArray = input.split('\n');
+type Move = 'Rock' | 'Paper' | 'Scissors';
+type Outcome = 'Win' | 'Loss' | 'Draw';
 
-// A: rock
-// B: paper
-// C: scissors
+const moveTranslator: { [index in string]: Move } = {
+	A: 'Rock',
+	B: 'Paper',
+	C: 'Scissors',
+	X: 'Rock',
+	Y: 'Paper',
+	Z: 'Scissors',
+};
 
-// X: rock - 1
-// Y: paper - 2
-// Z: scissors - 3
+const moveScoreTranslator: { [index in Move]: number } = {
+	Rock: 1,
+	Paper: 2,
+	Scissors: 3,
+};
 
-// 0 loose. 3 draw. 6 win
+const outcomeScoreTranslator: { [index in Outcome]: number } = {
+	Win: 6,
+	Draw: 3,
+	Loss: 0,
+};
 
-type aChoice = 'A' | 'B' | 'C';
-type bChoice = 'X' | 'Y' | 'Z';
-type outCome = 0 | 3 | 6;
-type myScore = 1 | 2 | 3;
-
-function getOutcome(a: aChoice, b: bChoice): outCome {
-	switch (a) {
-		case 'A':
-			if (b == 'X') return 3;
-			if (b == 'Y') return 6;
-			if (b == 'Z') return 0;
+const isWin = (player: Move, enemy: Move): Outcome => {
+	switch (player) {
+		case 'Rock':
+			if (enemy === 'Paper') return 'Loss';
+			else if (enemy === 'Scissors') return 'Win';
 			break;
-		case 'B':
-			if (b == 'X') return 0;
-			if (b == 'Y') return 3;
-			if (b == 'Z') return 6;
+		case 'Paper':
+			if (enemy === 'Scissors') return 'Loss';
+			else if (enemy === 'Rock') return 'Win';
 			break;
-		case 'C':
-			if (b == 'X') return 6;
-			if (b == 'Y') return 0;
-			if (b == 'Z') return 3;
-			break;
-	}
-	return 0;
-}
-
-function getMyScore(b: bChoice): myScore {
-	switch (b) {
-		case 'X':
-			return 1;
-		case 'Y':
-			return 2;
-		case 'Z':
-			return 3;
-		default:
+		case 'Scissors':
+			if (enemy === 'Rock') return 'Loss';
+			else if (enemy === 'Paper') return 'Win';
 			break;
 	}
-	return 1;
-}
 
-let total = 0;
+	return 'Draw';
+};
 
-inputArray.forEach((line) => {
-	const [elvChoice, myChoice] = line.split(' ') as [aChoice, bChoice];
+const scoreForHand = (hand: string): number => {
+	const moves = hand.split(' ');
+	const elfMove: Move = moveTranslator[moves[0]];
+	const playerMove: Move = moveTranslator[moves[1]];
 
-	total += getOutcome(elvChoice, myChoice) + getMyScore(myChoice);
-});
+	const outcome: Outcome = isWin(playerMove, elfMove);
 
-console.log(total);
+	return moveScoreTranslator[playerMove] + outcomeScoreTranslator[outcome];
+};
+
+const input = fs
+	.readFileSync('input.txt', 'utf8')
+	.split('\n')
+	.filter((line) => line.length !== 0);
+const totalScore = input.reduce(
+	(score: number, currHand) => score + scoreForHand(currHand),
+	0
+);
+
+console.log(totalScore);
