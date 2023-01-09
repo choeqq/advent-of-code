@@ -1,29 +1,31 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
-const input = fs.readFileSync('input.txt', 'utf8');
-const inputArray = input.split('\n');
+interface IElf {
+	min: number;
+	max: number;
+}
 
-let count = 0;
-
-const createRangedArray = (s: number, e: number): number[] => {
-	return [...Array(e - s + 1).keys()].map((x) => x + s);
+const overlap = (elfs: IElf[]): boolean => {
+	if (elfs[0].max >= elfs[1].min && elfs[1].max >= elfs[0].max) return true;
+	if (elfs[1].max >= elfs[0].min && elfs[0].max >= elfs[1].max) return true;
+	return false;
 };
 
-inputArray.forEach((line) => {
-	const [first, second] = line.split(',');
-
-	const [fl, fh] = first.split('-').map((x) => parseInt(x));
-	const [sl, sh] = second.split('-').map((x) => parseInt(x));
-
-	const firstArr = createRangedArray(fl, fh);
-	const secondArr = createRangedArray(sl, sh);
-
-	for (const x of firstArr) {
-		if (secondArr.includes(x)) {
-			count++;
-			break;
-		}
-	}
+const input = fs
+	.readFileSync('input.txt', 'utf8')
+	.split('\n')
+	.filter((line) => line.length !== 0);
+const pairs = input.map((a) => a.split(','));
+const teams: IElf[][] = pairs.map((pair) => {
+	return pair.map((individual) => {
+		const range = individual.split('-');
+		return {
+			min: Number(range[0]),
+			max: Number(range[1]),
+		} as IElf;
+	});
 });
 
-console.log(count);
+const answer = teams.map(overlap).filter(Boolean).length;
+
+console.log(answer);
