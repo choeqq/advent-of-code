@@ -1,28 +1,68 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
-const input = fs.readFileSync('input.txt', 'utf8');
-const inputArray = input.split('\n');
+type Move = 'Rock' | 'Paper' | 'Scissors';
+type Outcome = 'Win' | 'Loss' | 'Draw';
 
-type aChoice = 'A' | 'B' | 'C';
-type bChoice = 'X' | 'Y' | 'Z';
-type gameScore = 0 | 3 | 6;
-type myScore = 1 | 2 | 3;
-
-const gameMapper: Record<aChoice, Record<bChoice, bChoice>> = {
-	A: { X: 'Z', Y: 'X', Z: 'Y' },
-	B: { X: 'X', Y: 'Y', Z: 'Z' },
-	C: { X: 'Y', Y: 'Z', Z: 'X' },
+const moveTranslator: { [index in string]: Move } = {
+	A: 'Rock',
+	B: 'Paper',
+	C: 'Scissors',
 };
 
-const myScoreMapper: Record<bChoice, myScore> = { X: 1, Y: 2, Z: 3 };
-const gameScoreMapper: Record<bChoice, gameScore> = { X: 0, Y: 3, Z: 6 };
+const messageTranslator: { [index in string]: Outcome } = {
+	X: 'Loss',
+	Y: 'Draw',
+	Z: 'Win',
+};
 
-let totalScore = 0;
+const moveScoreTranslator: { [index in Move]: number } = {
+	Rock: 1,
+	Paper: 2,
+	Scissors: 3,
+};
 
-inputArray.forEach((line) => {
-	const [elvChoice, myChoice] = line.split(' ') as [aChoice, bChoice];
-	const myShape = gameMapper[elvChoice][myChoice];
-	totalScore += gameScoreMapper[myChoice] + myScoreMapper[myShape];
-});
+const outcomeScoreTranslator: { [index in Outcome]: number } = {
+	Win: 6,
+	Draw: 3,
+	Loss: 0,
+};
+
+const whatMove = (outcome: Outcome, enemy: Move): Move => {
+	switch (outcome) {
+		case 'Win':
+			if (enemy === 'Rock') return 'Paper';
+			else if (enemy === 'Paper') return 'Scissors';
+			return 'Rock';
+		case 'Draw':
+			if (enemy === 'Rock') return 'Rock';
+			else if (enemy === 'Paper') return 'Paper';
+			return 'Scissors';
+		case 'Loss':
+			if (enemy === 'Rock') return 'Scissors';
+			else if (enemy === 'Paper') return 'Rock';
+			return 'Paper';
+	}
+};
+
+const scoreForHand = (hand: string): number => {
+	const letters = hand.split(' ');
+	const elfMove: Move = moveTranslator[letters[0]];
+	const playerInstruction: Outcome = messageTranslator[letters[1]];
+
+	const playerMove: Move = whatMove(playerInstruction, elfMove);
+
+	return (
+		moveScoreTranslator[playerMove] + outcomeScoreTranslator[playerInstruction]
+	);
+};
+
+const input = fs
+	.readFileSync('input.txt', 'utf8')
+	.split('\n')
+	.filter((line) => line.length !== 0);
+const totalScore = input.reduce(
+	(score: number, currHand) => score + scoreForHand(currHand),
+	0
+);
 
 console.log(totalScore);
