@@ -1,50 +1,46 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
-const input = fs.readFileSync('input.txt', 'utf8');
-const rows = input.split('\n');
+const emptyLine = (l: string) => l.length !== 0;
+const multiply = (prod: number, curr: number) => prod * curr;
 
-let bestView = 0;
+const countVisibleTrees = (line: number[], curr: number) => {
+	if (Math.max(...line) < curr) return line.length;
+	return line.findIndex((t) => t >= curr) + 1;
+};
 
-for (const [rowNumber, row] of rows.entries()) {
-	const trees = row.split('').map((x) => +x);
+const scenicScore = (
+	xPos: number,
+	yPos: number,
+	forest: number[][]
+): number => {
+	const current = forest[yPos][xPos];
+	const left = forest[yPos].slice(0, xPos).reverse();
+	const right = forest[yPos].slice(xPos + 1);
+	const up = forest
+		.slice(0, yPos)
+		.map((l) => l[xPos])
+		.reverse();
+	const down = forest.slice(yPos + 1).map((l) => l[xPos]);
 
-	for (const [colNumber, tree] of trees.entries()) {
-		if (
-			colNumber === 0 ||
-			rowNumber === 0 ||
-			colNumber === trees.length - 1 ||
-			rowNumber === rows.length - 1
-		) {
-			continue;
-		} else {
-			const scores: number[] = [];
+	const score = [left, up, right, down]
+		.map((view) => countVisibleTrees(view, current))
+		.reduce(multiply, 1);
 
-			const rowFirst = trees.slice(0, colNumber).reverse();
-			const rowSecond = trees.slice(colNumber + 1, trees.length);
+	return score;
+};
 
-			const colArray: number[] = [];
-			for (const row of rows) {
-				colArray.push(+row[colNumber]);
-			}
+const input = fs
+	.readFileSync('input.txt', 'utf8')
+	.split('\n')
+	.filter(emptyLine)
+	.map((l) => l.split('').map(Number));
 
-			const colFirst = colArray.slice(0, rowNumber).reverse();
-			const colSecond = colArray.slice(rowNumber + 1, colArray.length);
+scenicScore(2, 1, input);
 
-			const arrsToCheck = [rowFirst, rowSecond, colFirst, colSecond];
+const scoreMap = input.map((line, i) => {
+	return line.map((_, j) => scenicScore(j, i, input));
+});
 
-			for (const arr of arrsToCheck) {
-				for (const [i, x] of arr.entries()) {
-					if (x >= tree || i === arr.length - 1) {
-						scores.push(i + 1);
-						break;
-					}
-				}
-			}
+const answer = Math.max(...scoreMap.map((arr) => Math.max(...arr)));
 
-			const sum = scores.reduce((a, b) => a * b, 1);
-			if (sum > bestView) bestView = sum;
-		}
-	}
-}
-
-console.log(bestView);
+console.log(answer);
