@@ -1,48 +1,34 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
-const input = fs.readFileSync('input.txt', 'utf8');
-const rows = input.split('\n');
+const emptyLine = (l: string) => l.length !== 0;
+const sumElements = (sum: number, curr: number) => sum + curr;
 
-let sum = 0;
+const isVisible = (xPos: number, yPos: number, forest: number[][]): number => {
+	const current = forest[yPos][xPos];
 
-for (const [rowNumber, row] of rows.entries()) {
-	const trees = row.split('').map((x) => +x);
+	const left = forest[yPos].slice(0, xPos);
+	const right = forest[yPos].slice(xPos + 1);
+	const up = forest.slice(0, yPos).map((l) => l[xPos]);
+	const down = forest.slice(yPos + 1).map((l) => l[xPos]);
 
-	for (const [colNumber, tree] of trees.entries()) {
-		if (
-			colNumber === 0 ||
-			rowNumber === 0 ||
-			colNumber === trees.length - 1 ||
-			rowNumber === rows.length - 1
-		) {
-			sum++;
-			continue;
-		} else {
-			const rowFirstMax = Math.max(...trees.slice(0, colNumber));
-			const rowSecondMax = Math.max(
-				...trees.slice(colNumber + 1, trees.length)
-			);
+	const biggestTrees = [left, up, right, down].map((t) => Math.max(...t));
+	const smallestBigTree = Math.min(...biggestTrees);
 
-			const colArray: number[] = [];
-			for (const row of rows) {
-				colArray.push(+row[colNumber]);
-			}
+	return current > smallestBigTree ? 1 : 0;
+};
 
-			const colFirstMax = Math.max(...colArray.slice(0, rowNumber));
-			const colSecondMax = Math.max(
-				...colArray.slice(rowNumber + 1, colArray.length)
-			);
+const input = fs
+	.readFileSync('input.txt', 'utf8')
+	.split('\n')
+	.filter(emptyLine)
+	.map((l) => l.split('').map(Number));
 
-			if (
-				tree > rowFirstMax ||
-				tree > rowSecondMax ||
-				tree > colFirstMax ||
-				tree > colSecondMax
-			) {
-				sum++;
-			}
-		}
-	}
-}
+const visibilityMap = input.map((line, i) => {
+	return line.map((_, j) => isVisible(j, i, input));
+});
 
-console.log(sum);
+const answer = visibilityMap
+	.map((arr) => arr.reduce(sumElements))
+	.reduce(sumElements);
+
+console.log(answer);
