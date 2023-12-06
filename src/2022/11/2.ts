@@ -4,7 +4,7 @@
 // test case from every monkey. Once we have that, we can keep dividing the
 // numbers when they get too big.
 
-import fs from 'fs';
+import * as fs from 'fs';
 import BigNumber from 'bignumber.js';
 
 const input = fs.readFileSync('input.txt', 'utf8');

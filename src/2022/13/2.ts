@@ -22,7 +22,7 @@ const areInOrder = (left: Value, right: Value): Result => {
 		const lArr = padArrayToLength(left, maxLength);
 		const rArr = padArrayToLength(right, maxLength);
 		const answer = lArr.map(
-			(val: Value, i: number): Result => areInOrder(val, rArr[i])
+			(val: Value, i: number): Result => areInOrder(val, rArr[i]),
 		);
 		const firstBad = answer.findIndex((ans) => ans === 'bad');
 		const firstGood = answer.findIndex((ans) => ans === 'good');
@@ -55,16 +55,16 @@ const packets = input
 	.concat([firstDiv, secondDiv]);
 
 const orderedSignal = packets.sort((a: Value, b: Value): number =>
-	areInOrder(a, b) === 'good' ? -1 : 1
+	areInOrder(a, b) === 'good' ? -1 : 1,
 );
 
 const firstDivPos =
 	orderedSignal.findIndex(
-		(packet) => JSON.stringify(packet) === JSON.stringify(firstDiv)
+		(packet) => JSON.stringify(packet) === JSON.stringify(firstDiv),
 	) + 1;
 const secondDivPos =
 	orderedSignal.findIndex(
-		(packet) => JSON.stringify(packet) === JSON.stringify(secondDiv)
+		(packet) => JSON.stringify(packet) === JSON.stringify(secondDiv),
 	) + 1;
 const answer = firstDivPos * secondDivPos;
 

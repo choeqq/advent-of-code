@@ -11,7 +11,7 @@ const countVisibleTrees = (line: number[], curr: number) => {
 const scenicScore = (
 	xPos: number,
 	yPos: number,
-	forest: number[][]
+	forest: number[][],
 ): number => {
 	const current = forest[yPos][xPos];
 	const left = forest[yPos].slice(0, xPos).reverse();

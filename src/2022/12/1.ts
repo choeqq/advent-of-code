@@ -48,7 +48,7 @@ const map = input.map((row) =>
 			height: getHeightOfChar(point),
 			isEnd: false,
 		} as Point;
-	})
+	}),
 );
 
 const dijkstra = (start: Position, end: Position, map: Point[][]): number => {
@@ -63,10 +63,10 @@ const dijkstra = (start: Position, end: Position, map: Point[][]): number => {
 		if (visited.includes(curr.toString())) continue;
 		const currHeight = map[curr[0]][curr[1]].height;
 		const neighbours = getNeighbours(curr, map).filter(
-			(n: Position) => !visited.includes(n.toString())
+			(n: Position) => !visited.includes(n.toString()),
 		);
 		const reachableNeighbours = neighbours.filter(
-			(neighbour) => map[neighbour[0]][neighbour[1]].height <= currHeight + 1
+			(neighbour) => map[neighbour[0]][neighbour[1]].height <= currHeight + 1,
 		);
 
 		toVisit.push(...reachableNeighbours);

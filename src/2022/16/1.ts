@@ -1,5 +1,5 @@
-const fs = require('fs');
-const assert = require('assert');
+import * as fs from 'fs';
+import * as assert from 'assert';
 
 const parseFlowInfo = (data: string) => {
 	return data.split('\n').reduce((map, line) => {
@@ -25,7 +25,7 @@ function solve(data: string, partTwo: boolean) {
 		const flowed = [...opened.entries()].reduce(
 			(sum, [key, value]) =>
 				sum + (value ? value * valves.get(key)!.flowRate : 0),
-			0
+			0,
 		);
 		if (!time) return flowed;
 
@@ -67,7 +67,7 @@ function solve(data: string, partTwo: boolean) {
 	return partTwo ? recur(25, 'AA', 'AA') : recur(29, 'AA', null);
 }
 
-function solveOne(data: string): any {
+function solveOne(data: string) {
 	return solve(data, false);
 }
 
@@ -84,12 +84,12 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II`),
-		1649
+		1649,
 	); // off by two, supposed to be 1651
 	console.log(solveOne(data));
 })();
 
-function solveTwo(data: string): any {
+function solveTwo(data: string) {
 	return solve(data, true);
 }
 
@@ -106,7 +106,7 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II`),
-		1706
+		1706,
 	); // oof by one, supposed to be 1707
 	console.log(solveTwo(data));
 })();

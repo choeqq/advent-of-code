@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
 const input = fs.readFileSync('input.txt', 'utf8');
 const inputArray = input.split('\n');
@@ -16,7 +16,7 @@ const createNestedObj = (base: Record<any, any>, names: string[]) => {
 const writeToNestedObj = (
 	base: Record<any, any>,
 	filename: string,
-	size: number
+	size: number,
 ) => {
 	for (let i = 0; i < currentPosBuild.length; i++) {
 		const nestedFolderName = currentPosBuild.slice(0, i + 1).join('-');

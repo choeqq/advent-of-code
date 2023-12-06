@@ -62,7 +62,7 @@ const input = fs
 	.filter((line) => line.length !== 0);
 const totalScore = input.reduce(
 	(score: number, currHand) => score + scoreForHand(currHand),
-	0
+	0,
 );
 
 console.log(totalScore);

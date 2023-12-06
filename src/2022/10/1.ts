@@ -36,10 +36,10 @@ const chars = Array(CHARACTERS)
 			.map((_, j) =>
 				litPixels.slice(
 					i * (HEIGHT - 1) + j * WIDHT,
-					(i + 1) * (HEIGHT - 1) + j * WIDHT
-				)
+					(i + 1) * (HEIGHT - 1) + j * WIDHT,
+				),
 			)
-			.map((a) => a.join(''))
+			.map((a) => a.join('')),
 	);
 
 const answer = chars

@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'fs';
 
 const input = fs.readFileSync('input.txt', 'utf8');
 const inputArray = input.split('');

@@ -34,7 +34,7 @@ const getMaxPressure = (
 	time: number,
 	destinations: Room[],
 	priceMap: PricesRoomMap,
-	roomsFromName: InputRoomMap
+	roomsFromName: InputRoomMap,
 ) => {
 	const paths: Path[] = [
 		{
@@ -81,7 +81,7 @@ const getMaxPressure = (
 const dijkstra = (
 	start: Room,
 	endPositions: Room[],
-	map: InputRoomMap
+	map: InputRoomMap,
 ): CostMap => {
 	const visited: string[] = [];
 	const toVisit: Room[] = [start];
@@ -145,7 +145,7 @@ const inputRooms: InputRoomMap = input.reduce(
 		...map,
 		[currRoom.name]: currRoom,
 	}),
-	{} as InputRoomMap
+	{} as InputRoomMap,
 );
 
 const startingRoom = inputRooms['AA'];
@@ -160,18 +160,18 @@ const roomsMovePrices: PricesRoomMap = startingRooms.reduce(
 			[room.name]: dijkstra(
 				room,
 				destinationRooms.filter((r) => r.name != room.name),
-				inputRooms
+				inputRooms,
 			),
 		};
 	},
-	{} as PricesRoomMap
+	{} as PricesRoomMap,
 );
 
 const answer = getMaxPressure(
 	30,
 	destinationRooms,
 	roomsMovePrices,
-	inputRooms
+	inputRooms,
 );
 
 console.log(answer);

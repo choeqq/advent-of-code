@@ -45,7 +45,7 @@ const getNewDirection = (oldDir: number, instruction: string): number => {
 const getPlayerAfterSteps = (
 	player: Player,
 	steps: number,
-	map: Face[]
+	map: Face[],
 ): Player => {
 	let currPos = player.loc.pos;
 	let currDir = player.direction;
@@ -242,7 +242,7 @@ const getPlayerAfterSteps = (
 const getNextPlayer = (
 	player: Player,
 	instruction: Instruction,
-	map: Face[]
+	map: Face[],
 ): Player => {
 	if (typeof instruction === 'string')
 		return {
@@ -289,7 +289,7 @@ const startingPlayer: Player = {
 const finalPlayer = movement.reduce(
 	(player: Player, instruction: Instruction) =>
 		getNextPlayer(player, instruction, map),
-	startingPlayer
+	startingPlayer,
 );
 
 const currOffset = offsetForFace(finalPlayer.loc.face);

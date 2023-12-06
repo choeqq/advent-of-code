@@ -28,8 +28,8 @@ const walls = new Set(
 	input.flatMap((l, i) =>
 		l
 			.map((c, j) => (c === '#' ? [i, j].toString() : ''))
-			.filter((a) => a !== '')
-	)
+			.filter((a) => a !== ''),
+	),
 );
 walls.add([startPos[0] - 1, startPos[1]].toString());
 walls.add([endPos[0] + 1, endPos[1]].toString());
@@ -61,7 +61,7 @@ const blizzards: Blizzard[] = input.flatMap((l, i) =>
 			}
 			return '';
 		})
-		.filter((a) => a !== '')
+		.filter((a) => a !== ''),
 ) as Blizzard[];
 
 const updateBlizzards = (): void => {
@@ -84,7 +84,7 @@ const updateBlizzards = (): void => {
 const howManyMinutesToFinish = (
 	start: number[],
 	finish: number[],
-	time: number
+	time: number,
 ): number => {
 	let toCheck = new Set<string>();
 	toCheck.add(start.toString());
@@ -92,7 +92,7 @@ const howManyMinutesToFinish = (
 		const nextToCheck = new Set<string>();
 		updateBlizzards();
 		const nextOccupied = new Set<string>(
-			blizzards.map((b) => b.pos.toString())
+			blizzards.map((b) => b.pos.toString()),
 		);
 		for (const pos of toCheck) {
 			if (pos === finish.toString()) return time;

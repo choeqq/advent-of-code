@@ -48,12 +48,12 @@ const scanRange = sensors.reduce(
 			Math.max(currRange[1], currSensor.pos[0] + currSensor.view),
 		];
 	},
-	[Number.MAX_VALUE, Number.MIN_VALUE]
+	[Number.MAX_VALUE, Number.MIN_VALUE],
 );
 
 const xCoords = Array.from(
 	{ length: Math.abs(scanRange[1] - scanRange[0]) + 1 },
-	(_, i) => i + scanRange[0]
+	(_, i) => i + scanRange[0],
 );
 
 const targetRow: number[] = xCoords.map((targetX) => {

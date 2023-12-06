@@ -30,7 +30,7 @@ const getValue = (of: Monkey, monkeys: MonkeyMap): number => {
 
 const getSideWithHuman = (
 	monkey: Monkey,
-	monkeys: MonkeyMap
+	monkeys: MonkeyMap,
 ): 'left' | 'right' | 'nowhere' => {
 	if (monkey.left === 'humn') return 'left';
 	if (monkey.right === 'humn') return 'right';
@@ -45,7 +45,7 @@ const getSideWithHuman = (
 const getHumanValue = (
 	target: number,
 	monkey: Monkey,
-	monkeys: MonkeyMap
+	monkeys: MonkeyMap,
 ): number => {
 	switch (monkey.operation) {
 		case '+':

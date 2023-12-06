@@ -33,7 +33,7 @@ const sortPathByPressure = (a: Path, b: Path) =>
 const getMostPressureReleaseWithElephant = (
 	destinationRooms: Room[],
 	roomsMovePrices: PricesRoomMap,
-	inputRooms: InputRoomMap
+	inputRooms: InputRoomMap,
 ) => {
 	let mostPressureReleased = -1;
 	const paths = getAllPaths(26, destinationRooms, roomsMovePrices, inputRooms);
@@ -45,7 +45,7 @@ const getMostPressureReleaseWithElephant = (
 		)
 			if (
 				paths[humanPath].steps.every(
-					(s) => !paths[elephantPath].steps.includes(s)
+					(s) => !paths[elephantPath].steps.includes(s),
 				)
 			)
 				if (
@@ -61,7 +61,7 @@ const getAllPaths = (
 	time: number,
 	destinations: Room[],
 	priceMap: PricesRoomMap,
-	roomsFromName: InputRoomMap
+	roomsFromName: InputRoomMap,
 ) => {
 	const paths: Path[] = [
 		{
@@ -119,7 +119,7 @@ const getAllPaths = (
 const dijkstra = (
 	start: Room,
 	endPositions: Room[],
-	map: InputRoomMap
+	map: InputRoomMap,
 ): CostMap => {
 	const visited: string[] = [];
 	const toVisit: Room[] = [start];
@@ -183,7 +183,7 @@ const inputRooms: InputRoomMap = input.reduce(
 		...map,
 		[currRoom.name]: currRoom,
 	}),
-	{} as InputRoomMap
+	{} as InputRoomMap,
 );
 
 const startingRoom = inputRooms['AA'];
@@ -198,17 +198,17 @@ const roomsMovePrices: PricesRoomMap = startingRooms.reduce(
 			[room.name]: dijkstra(
 				room,
 				destinationRooms.filter((r) => r.name != room.name),
-				inputRooms
+				inputRooms,
 			),
 		};
 	},
-	{} as PricesRoomMap
+	{} as PricesRoomMap,
 );
 
 console.log(
 	getMostPressureReleaseWithElephant(
 		destinationRooms,
 		roomsMovePrices,
-		inputRooms
-	)
+		inputRooms,
+	),
 );

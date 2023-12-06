@@ -20,7 +20,7 @@ const getNewDirection = (oldDir: number, instruction: string): number => {
 const getPosAfterSteps = (
 	player: Player,
 	steps: number,
-	map: string[][]
+	map: string[][],
 ): number[] => {
 	let currPos = player.pos;
 	let stepsLeft = steps;
@@ -41,7 +41,7 @@ const getPosAfterSteps = (
 					nextPos[0],
 					map[nextPos[0]].reduce(
 						(prev, curr, idx) => (curr != ' ' ? idx : prev),
-						0
+						0,
 					),
 				];
 			if (map[nextPos[0]][nextPos[1]] === '#') return currPos;
@@ -62,7 +62,7 @@ const getPosAfterSteps = (
 				nextPos = [
 					map.reduce(
 						(prev, curr, idx) => (curr[nextPos[1]] != ' ' ? idx : prev),
-						0
+						0,
 					),
 					nextPos[1],
 				];
@@ -77,7 +77,7 @@ const getPosAfterSteps = (
 const getNextPlayer = (
 	player: Player,
 	instruction: Instruction,
-	map: string[][]
+	map: string[][],
 ): Player => {
 	if (typeof instruction === 'string')
 		return {
@@ -116,7 +116,7 @@ const startingPlayer: Player = {
 const finalPlayer = movement.reduce(
 	(player: Player, instruction: Instruction) =>
 		getNextPlayer(player, instruction, map),
-	startingPlayer
+	startingPlayer,
 );
 
 const answer =

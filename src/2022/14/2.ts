@@ -24,7 +24,7 @@ const input = fs
 const paths = input.flatMap((inp) => {
 	const lines = inp.split(' -> ');
 	const points: Position[] = lines.map(
-		(l) => l.split(',').map(Number) as Position
+		(l) => l.split(',').map(Number) as Position,
 	);
 
 	points.forEach((point) => (maxDepth = Math.max(maxDepth, point[1] + 2)));
@@ -39,7 +39,7 @@ const paths = input.flatMap((inp) => {
 					...tally,
 					...(Array.from(
 						{ length: howMany },
-						(_, i) => i + Math.min(curr[1], prev[1])
+						(_, i) => i + Math.min(curr[1], prev[1]),
 					).map((a) => [curr[0], a]) as Position[]),
 				];
 			} else {
@@ -48,12 +48,12 @@ const paths = input.flatMap((inp) => {
 					...tally,
 					...(Array.from(
 						{ length: howMany },
-						(_, i) => i + Math.min(curr[0], prev[0])
+						(_, i) => i + Math.min(curr[0], prev[0]),
 					).map((a) => [a, curr[1]]) as Position[]),
 				];
 			}
 		},
-		[]
+		[],
 	);
 });
 

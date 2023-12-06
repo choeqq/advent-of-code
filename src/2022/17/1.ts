@@ -6,7 +6,7 @@ type Position = [number, number];
 const validPos = (
 	pos: Position,
 	shape: Shape,
-	map: Map<string, boolean>
+	map: Map<string, boolean>,
 ): boolean => {
 	if (pos[1] < 0) return false;
 	if (pos[0] < 0 || pos[0] + shape.width > 7) return false;

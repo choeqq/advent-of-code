@@ -77,29 +77,29 @@ const eastCheck = (elf: Elf): number[] | undefined => {
 
 const getTentativeBasedOnRound = (
 	elf: Elf,
-	round: number
+	round: number,
 ): number[] | undefined => {
 	if (round % 4 === 0) {
 		const newLocations = [northCheck, southCheck, westCheck, eastCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else if (round % 4 === 1) {
 		const newLocations = [southCheck, westCheck, eastCheck, northCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else if (round % 4 === 2) {
 		const newLocations = [westCheck, eastCheck, northCheck, southCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else {
 		const newLocations = [eastCheck, northCheck, southCheck, westCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
@@ -131,7 +131,7 @@ const moveRound = (elves: Elf[], round: number): State => {
 
 	currentElves.forEach((elf) => {
 		const occupiedNeighbours = elf.neighboursPos.filter((n) =>
-			occupied.has(n.toString())
+			occupied.has(n.toString()),
 		).length;
 		elf.willMove = occupiedNeighbours > 0 ? true : false;
 		if (elf.willMove) {

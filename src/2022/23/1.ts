@@ -77,29 +77,29 @@ const eastCheck = (elf: Elf): number[] | undefined => {
 
 const getTentativeBasedOnRound = (
 	elf: Elf,
-	round: number
+	round: number,
 ): number[] | undefined => {
 	if (round % 4 === 0) {
 		const newLocations = [northCheck, southCheck, westCheck, eastCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else if (round % 4 === 1) {
 		const newLocations = [southCheck, westCheck, eastCheck, northCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else if (round % 4 === 2) {
 		const newLocations = [westCheck, eastCheck, northCheck, southCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
 	} else {
 		const newLocations = [eastCheck, northCheck, southCheck, westCheck].map(
-			(check) => check(elf)
+			(check) => check(elf),
 		);
 		const firstValid = newLocations.find((loc) => loc !== undefined);
 		if (firstValid !== undefined) return firstValid;
@@ -131,7 +131,7 @@ const moveRound = (elves: Elf[], round: number): State => {
 
 	currentElves.forEach((elf) => {
 		const occupiedNeighbours = elf.neighboursPos.filter((n) =>
-			occupied.has(n.toString())
+			occupied.has(n.toString()),
 		).length;
 		elf.willMove = occupiedNeighbours > 0 ? true : false;
 		if (elf.willMove) {
@@ -191,19 +191,19 @@ const finalElves = Array.from({ length: howManyRounds }, (_, i) => i).reduce(
 	(elves, round) => {
 		return moveRound(elves, round).elves;
 	},
-	elves
+	elves,
 );
 const minPos = finalElves.reduce(
 	(min, elf) => {
 		return [Math.min(min[0], elf.pos[0]), Math.min(min[1], elf.pos[1])];
 	},
-	[Number.MAX_VALUE, Number.MAX_VALUE]
+	[Number.MAX_VALUE, Number.MAX_VALUE],
 );
 const maxPos = finalElves.reduce(
 	(max, elf) => {
 		return [Math.max(max[0], elf.pos[0]), Math.max(max[1], elf.pos[1])];
 	},
-	[Number.MIN_VALUE, Number.MIN_VALUE]
+	[Number.MIN_VALUE, Number.MIN_VALUE],
 );
 
 const height = maxPos[0] - minPos[0] + 1;

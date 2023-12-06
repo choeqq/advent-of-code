@@ -21,7 +21,7 @@ const areInOrder = (left: Value, right: Value): Result => {
 		const lArr = padArrayToLength(left, maxLength);
 		const rArr = padArrayToLength(right, maxLength);
 		const answer = lArr.map(
-			(val: Value, i: number): Result => areInOrder(val, rArr[i])
+			(val: Value, i: number): Result => areInOrder(val, rArr[i]),
 		);
 		const firstBad = answer.findIndex((ans) => ans === 'bad');
 		const firstGood = answer.findIndex((ans) => ans === 'good');
@@ -49,7 +49,7 @@ const input = fs
 	.map((a) => a.trim());
 
 const packets = input.map((line) =>
-	line.split('\n').map((pack) => JSON.parse(pack))
+	line.split('\n').map((pack) => JSON.parse(pack)),
 );
 
 const orderStatus = packets.map((packet) => areInOrder(packet[0], packet[1]));

@@ -16,7 +16,7 @@ const getAdjacents = (cube: number[]): number[][] => {
 const getWaterCubes = (
 	minPos: number[],
 	maxPos: number[],
-	cubes: Set<string>
+	cubes: Set<string>,
 ): Set<string> => {
 	const visited = new Set<string>();
 	const toVisit = [maxPos];
@@ -34,7 +34,7 @@ const getWaterCubes = (
 				neighbour[2] >= minPos[2] - 1 &&
 				neighbour[0] <= maxPos[0] + 1 &&
 				neighbour[1] <= maxPos[1] + 1 &&
-				neighbour[2] <= maxPos[2] + 1
+				neighbour[2] <= maxPos[2] + 1,
 		);
 
 		toVisit.push(...worthItAdj);
@@ -73,7 +73,7 @@ const waterCubes = getWaterCubes(minPos, maxPos, cubeSet);
 const answer = cubes
 	.map((cube) => {
 		const waterNeighbours = getAdjacents(cube).filter((neighbour) =>
-			waterCubes.has(neighbour.toString())
+			waterCubes.has(neighbour.toString()),
 		);
 		return waterNeighbours.length;
 	})

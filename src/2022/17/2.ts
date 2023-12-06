@@ -16,7 +16,7 @@ type SimulationAnswer = {
 const validPos = (
 	pos: Position,
 	shape: Shape,
-	map: Map<string, boolean>
+	map: Map<string, boolean>,
 ): boolean => {
 	if (pos[1] < 0) return false;
 	if (pos[0] < 0 || pos[0] + shape.width > 7) return false;
@@ -32,7 +32,7 @@ const validPos = (
 
 const simulateDrops = (
 	wind: string[],
-	howManyRocksToDrop: number
+	howManyRocksToDrop: number,
 ): SimulationAnswer => {
 	const map = new Map<string, boolean>();
 	const moves: Move[] = [];
