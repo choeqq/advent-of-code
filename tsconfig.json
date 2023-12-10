@@ -4,6 +4,7 @@
 	"compilerOptions": {
 		"noImplicitAny": true,
 		"outDir": "dist",
-		"downlevelIteration": true
+		"downlevelIteration": true,
+		"lib": ["ES2023.Array"],
 	}
 }
