@@ -23,4 +23,4 @@ The generated folder includes the following files:
 - `input.txt`: The raw input data for the puzzle.
 - `index.ts`: The TS file to work with, lightly prepared for reading the input file.
 
-From there, you're on your own. Navigate in to the day folder you want to work in, and run the script with `npx ts-node index.ts`. Good luck with the puzzles
+From there, you're on your own. Navigate in to the day folder you want to work in `cd src/2024/1`, and run the script with `npx ts-node index.ts`. Good luck with the puzzles
